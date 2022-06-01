@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+use Majkel\Funktor\Lexer;
+
+include __DIR__.'/vendor/autoload.php';
+
+$l = new Lexer(file_get_contents($argv[1]));
+print_r($l->lex());

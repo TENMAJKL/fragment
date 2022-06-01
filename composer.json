@@ -1,0 +1,16 @@
+{
+    "name": "majkel/funktor",
+    "description": "lisp and clean lang",
+    "autoload": {
+        "psr-4": {
+            "Majkel\\Funktor\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "TENMAJKL",
+            "email": "tenmajkl@liskyjidlokod.fun"
+        }
+    ],
+    "require": {}
+}
