@@ -5,6 +5,7 @@
 
 +{1 -{2 3}}
 
-f{parek {rohlik rizek:neco} 
-    echo{'cuus'}
+f{parek {rohlik:int rizek:int} int 
+    -- TODO    +{rohlik rizek}
+    +{1 1}
 }

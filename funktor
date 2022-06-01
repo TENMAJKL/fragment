@@ -2,8 +2,10 @@
 <?php
 
 use Majkel\Funktor\Lexer;
+use Majkel\Funktor\Parser;
 
 include __DIR__.'/vendor/autoload.php';
 
 $l = new Lexer(file_get_contents($argv[1]));
-print_r($l->lex());
+$p = new Parser($l->lex());
+print_r($p->parse());

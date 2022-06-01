@@ -11,4 +11,6 @@ enum TokenKind
     case Type;
     case Int;
     case String;
+    case Array;
+    case Void;
 }

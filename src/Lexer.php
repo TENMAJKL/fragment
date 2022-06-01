@@ -50,9 +50,7 @@ class Lexer
                     break; 
 
                 case '{':
-                    if ($tokens && $tokens[count($tokens) - 1]->kind == TokenKind::FunctionDefinition && count($tokens[count($tokens) - 1]->children()) == 0) {
-                        $tokens[count($tokens) - 1]->content = $curent;
-                        $curent = '';
+                    if ($tokens && $tokens[count($tokens) - 1]->kind == TokenKind::FunctionDefinition && count($tokens[count($tokens) - 1]->children()) === 1) {
                         $variables = new Token(TokenKind::Variables, '', [], $this->line);
                         break;
                     }
@@ -82,7 +80,6 @@ class Lexer
                         $curent = '';
                     }
                     $last = array_pop($tokens);
-                    print_r($tokens);
                     if (empty($tokens)) {
                         $result[] = $last;
                     } else {
@@ -106,11 +103,7 @@ class Lexer
                         $curent = '';
                         break;
                     }
-                    if ($tokens && $tokens[count($tokens) - 1]->kind === TokenKind::FunctionDefinition) {
-                        $variables = new Token(TokenKind::Variables, '', [], $this->line);
 
-                        break;
-                    } 
                     $kind = $this->getKind($curent);
                     $tokens[count($tokens) - 1]->addChild(new Token($kind, $curent, [], $this->line));
                     $curent = '';
@@ -143,7 +136,10 @@ class Lexer
             return TokenKind::Int;
         }
 
-        throw new CompilerException('Undefined word '.$target.' at target '.$this->line);
-
+        if (in_array($target, ['int', 'string', 'void'])) {
+            return TokenKind::Type;
+        }
+    
+        return TokenKind::Variable;
     }
 }
