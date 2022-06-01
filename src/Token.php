@@ -6,9 +6,9 @@ class Token
 {
     public function __construct(
         public readonly TokenKind $kind,
-        public readonly string $content,
+        public string $content,
         private array $children,
-        private int $line,
+        public readonly int $line,
     ) {
         
     }

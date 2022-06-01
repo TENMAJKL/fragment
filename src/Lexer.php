@@ -18,53 +18,82 @@ class Lexer
         $in_string = false;
         $in_comment = false;
         $result = [];
-        $curent = '';
         /** @var \Majkel\Funktor\Token $token */
-        $token = null;
+        $variables = null;
+        $curent = '';
+        /** @var array<\Majkel\Funktor\Token> $tokens */
+        $tokens = [];
         while ($item < strlen($this->code) - 1) {
             $item++;
             $char = $this->code[$item];
+            if ($char == PHP_EOL) {
+                if ($in_comment) {
+                    $in_comment = false;
+                }
+                $this->line++;
+            }
+
             if ($in_string) {
                 $curent .= $char;
+                if ($char == '\'') {
+                    $in_string = false;
+                }
+                continue;
+            }
+
+            if ($in_comment) {
                 continue;
             }
             switch ($char) {
-
                 case PHP_EOL:
-                    if ($in_comment) {
-                        $in_comment = false;
-                    }
-                    $this->line++;
                     
-                    break;
-    
-                if ($in_comment) {
-                    break;
-                }
+                    break; 
 
                 case '{':
-                    $new = new Token(TokenKind::FunctionCall, $curent, [], $this->line);
-                    $curent = '';
-
-                    if ($token) {
-                        $token->addChild($new);
-                    } else {
-                        $token = $new;
+                    if ($tokens && $tokens[count($tokens) - 1]->kind == TokenKind::FunctionDefinition && count($tokens[count($tokens) - 1]->children()) == 0) {
+                        $tokens[count($tokens) - 1]->content = $curent;
+                        $curent = '';
+                        $variables = new Token(TokenKind::Variables, '', [], $this->line);
+                        break;
                     }
+                    if ($curent == 'f') {
+                        $curent = '';
+                        if ($tokens) {
+                            throw new CompilerException('Function can\'t be defined in other function, in order to create lambda function use `lambda{`');
+                        }
+                        $tokens[] = new Token(TokenKind::FunctionDefinition, '', [], $this->line);
+                        break;
+                    }
+                    $tokens[] = new Token(TokenKind::FunctionCall, $curent, [], $this->line);
+                    $curent = '';
 
                     break;
                 case '}':
-                    $kind = $this->getKind($curent);
-                    $token->addChild(new Token($kind, $curent, [], $this->line));
-                    $curent = '';
-                    $result[] = $token;
-                    $token = null;
+                    if ($variables) {
+                        $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line)); 
+                        $tokens[count($tokens) - 1]->addChild($variables);
+                        $variables = null;
+                        $curent = '';
+                        break;
+                    }
+                    if ($curent) {
+                        $kind = $this->getKind($curent);
+                        $tokens[count($tokens) - 1]->addChild(new Token($kind, $curent, [], $this->line));
+                        $curent = '';
+                    }
+                    $last = array_pop($tokens);
+                    print_r($tokens);
+                    if (empty($tokens)) {
+                        $result[] = $last;
+                    } else {
+                        $tokens[count($tokens) - 1]->addChild($last);
+                    }
 
                     break;
 
                 case '\'':
-                    $curent .= '\'';
-                    $in_string = !$in_string;
+                    $curent = '\'';
+                    $in_string = true;
 
                     break;
 
@@ -72,8 +101,18 @@ class Lexer
                     if (!$curent) {
                         break;
                     }
+                    if ($variables) {
+                        $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line)); 
+                        $curent = '';
+                        break;
+                    }
+                    if ($tokens && $tokens[count($tokens) - 1]->kind === TokenKind::FunctionDefinition) {
+                        $variables = new Token(TokenKind::Variables, '', [], $this->line);
+
+                        break;
+                    } 
                     $kind = $this->getKind($curent);
-                    $token->addChild(new Token($kind, $curent, [], $this->line));
+                    $tokens[count($tokens) - 1]->addChild(new Token($kind, $curent, [], $this->line));
                     $curent = '';
                     break;
 
