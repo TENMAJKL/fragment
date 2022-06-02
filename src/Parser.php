@@ -13,6 +13,8 @@ class Parser
 
     private array $structures = [];
 
+    private bool $entry = false;
+
     public const Types = [
         'string' => 'char*', // TODO
         'int' => 'int',
@@ -26,7 +28,13 @@ class Parser
 
     public function parse(): array
     {
-        return array_map([$this, 'parseToken'], $this->tokens);
+        $result = array_map([$this, 'parseToken'], $this->tokens);
+
+        if (!$this->entry) {
+            throw new CompilerException('Entry function is missing');
+        }
+
+        return $result;
     }
 
     public function parseToken(Token $token): Result
@@ -73,8 +81,17 @@ class Parser
     {
         return (new (match($token->content) {
             '+','-','/','*' => Operators::class,
-            default => throw new CompilerException('Function '.$token->content.' does not exist')
+            default => $this->parseUserFunction($token),
         })($token, $this))->compile();
+    }
+
+    public function parseUserFunction(Token $token): Result
+    {
+        if (!isset($this->functions[$token->content])) {
+            throw new CompilerException('Function '.$token->content.' does not exist');
+        }
+
+        return new Result([$token->content.'('.$this->parse($token->children()).')'], $this->functions[$token->content]->children()[2]);
     }
 
     public function addLib(string $lib): static
@@ -83,15 +100,25 @@ class Parser
         return $this;
     }
 
-    public function addFunction(string $function): static
+    public function addFunction(Token $function): static
     {
-        $this->functions[] = $function;
+        $name = $function->children()[0]->content;
+        if (isset($this->functions[$name])) {
+            throw new CompilerException('Function '.$name.' has already been defined');
+        }
+        $this->functions[$name] = $function;
         return $this;
     }
 
     public function addStructure(string $structure): static
     {
         $this->structures[] = $structure;
+        return $this;
+    }
+
+    public function entry(): static
+    { 
+        $this->entry = true;
         return $this;
     }
 }
