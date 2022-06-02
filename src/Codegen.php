@@ -13,9 +13,23 @@ class Codegen
         
     }
     
-    public function generate()
+    public function generate(): string
     {
-
+        $indent = '';
+        $result = '';
+        foreach ($this->template as $item) {
+            foreach ($item->content as $line) {
+                if ($line == '}') {
+                    $indent = substr($indent, 1, -4);
+                }
+                $result .= $indent.$line;   
+                if ($line == '{') {
+                    $indent .= '    ';
+                }
+                $result .= "\n";
+            }
+        }
+        return $result;
     }
 
 }

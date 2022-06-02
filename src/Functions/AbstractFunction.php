@@ -29,7 +29,7 @@ abstract class AbstractFunction
                 }
             }
 
-            $result[] = $parsed;
+            $result[] = $parsed->content;
         }
 
         return $result;

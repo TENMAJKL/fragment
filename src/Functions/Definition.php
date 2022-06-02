@@ -16,10 +16,12 @@ class Definition extends AbstractFunction
             TokenKind::FunctionCall,
         ]);
 
+        $this->parser->addFunction()
+
         return new Result([
-            "{$args[2]} {$args[0]}({$args[1]})",
+            "{$args[2][0]} {$args[0][0]}({$args[1][0]})",
             '{',
-            "    return {$args[3]}",
+            "return {$args[3][0]}",
             '}',
         ], TokenKind::Void); 
     }

@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use Majkel\Funktor\Codegen;
 use Majkel\Funktor\Lexer;
 use Majkel\Funktor\Parser;
 
@@ -8,4 +9,5 @@ include __DIR__.'/vendor/autoload.php';
 
 $l = new Lexer(file_get_contents($argv[1]));
 $p = new Parser($l->lex());
-print_r($p->parse());
+$g = new Codegen($p->parse());
+echo $g->generate();
