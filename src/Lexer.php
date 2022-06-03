@@ -6,10 +6,12 @@ class Lexer
 {
     private int $line = 1;
 
+    private Stack $tokens;
+
     public function __construct(
         private string $code
     ) {
-        
+        $this->tokens = new Stack(); 
     }
 
     public function lex(): array
@@ -17,12 +19,11 @@ class Lexer
         $item = -1;
         $in_string = false;
         $in_comment = false;
+        $in_function = false;
         $result = [];
         /** @var \Majkel\Funktor\Token $token */
         $variables = null;
         $curent = '';
-        /** @var array<\Majkel\Funktor\Token> $tokens */
-        $tokens = [];
         while ($item < strlen($this->code) - 1) {
             $item++;
             $char = $this->code[$item];
@@ -50,40 +51,50 @@ class Lexer
                     break; 
 
                 case '{':
-                    if ($tokens && $tokens[count($tokens) - 1]->kind == TokenKind::FunctionDefinition && count($tokens[count($tokens) - 1]->children()) === 1) {
+                    if (!$this->tokens->empty() && $this->tokens->top()->kind == TokenKind::FunctionDefinition && count($this->tokens->top()->children()) === 1) {
                         $variables = new Token(TokenKind::Variables, '', [], $this->line);
                         break;
                     }
                     if ($curent == 'f') {
                         $curent = '';
-                        if ($tokens) {
+                        if ($in_function) {
                             throw new CompilerException('Function can\'t be defined in other function, in order to create lambda function use `lambda{`');
                         }
-                        $tokens[] = new Token(TokenKind::FunctionDefinition, '', [], $this->line);
+                        $in_function = true;
+                        $this->tokens->push(new Token(TokenKind::FunctionDefinition, '', [], $this->line));
                         break;
                     }
-                    $tokens[] = new Token(TokenKind::FunctionCall, $curent, [], $this->line);
+                    $this->tokens->push(new Token(TokenKind::FunctionCall, $curent, [], $this->line));
                     $curent = '';
 
                     break;
                 case '}':
                     if ($variables) {
-                        $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line)); 
-                        $tokens[count($tokens) - 1]->addChild($variables);
+                        if ($curent) {
+                            $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line)); 
+                        }
+                        $this->tokens->top()->addChild($variables);
                         $variables = null;
                         $curent = '';
                         break;
                     }
                     if ($curent) {
                         $kind = $this->getKind($curent);
-                        $tokens[count($tokens) - 1]->addChild(new Token($kind, $curent, [], $this->line));
+                        $this->tokens->top()->addChild(new Token($kind, $curent, [], $this->line));
                         $curent = '';
                     }
-                    $last = array_pop($tokens);
-                    if (empty($tokens)) {
+
+                    if (!$in_function) {
+                        throw new CompilerException('Unexpected code outside of function at line '.$this->line);
+                    }
+                    
+                    $last = $this->tokens->pop();
+
+                    if ($this->tokens->empty()) {
+                        $in_function = false;
                         $result[] = $last;
                     } else {
-                        $tokens[count($tokens) - 1]->addChild($last);
+                        $this->tokens->top()->addChild($last);
                     }
 
                     break;
@@ -105,7 +116,7 @@ class Lexer
                     }
 
                     $kind = $this->getKind($curent);
-                    $tokens[count($tokens) - 1]->addChild(new Token($kind, $curent, [], $this->line));
+                    $this->tokens->top()->addChild(new Token($kind, $curent, [], $this->line));
                     $curent = '';
                     break;
 
@@ -134,6 +145,10 @@ class Lexer
 
         if (count(array_filter(str_split($target), fn($item) => is_numeric($item))) == strlen($target)) {
             return TokenKind::Int;
+        }
+
+        if (!$this->tokens->empty() &&$this->tokens->top()->kind == TokenKind::FunctionDefinition && empty($this->tokens->top()->children())) {
+            return TokenKind::FunctionName;
         }
 
         if (in_array($target, ['int', 'string', 'void'])) {

@@ -9,14 +9,14 @@ class Definition extends AbstractFunction
 {
     public function compile(): Result
     {
+        $this->parser->addFunction($this->token); // Allows recursion
+ 
         $args = $this->arguments([
-            TokenKind::Variable,
+            TokenKind::FunctionName,
             TokenKind::Variables,
             TokenKind::Type,
             TokenKind::FunctionCall,
         ]);
-
-        $this->parser->addFunction($this->token);
 
         if ($args[0][0] == 'entry') {
             $this->parser->entry();

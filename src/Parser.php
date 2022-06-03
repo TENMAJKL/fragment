@@ -4,6 +4,7 @@ namespace Majkel\Funktor;
 
 use Majkel\Funktor\Functions\Definition;
 use Majkel\Funktor\Functions\Operators;
+use Majkel\Funktor\Functions\UserFunction;
 
 class Parser
 {
@@ -13,11 +14,18 @@ class Parser
 
     private array $structures = [];
 
+    private array $variables = [];
+
     private bool $entry = false;
 
     public const Types = [
         'string' => 'char*', // TODO
         'int' => 'int',
+    ];
+
+    public const TypesKind = [
+        'string' => TokenKind::String,
+        'int' => TokenKind::Int
     ];
 
     public function __construct(
@@ -46,7 +54,8 @@ class Parser
             TokenKind::FunctionDefinition => $this->parseFunctionDefinition($token),
             TokenKind::Variables => $this->parseVariables($token),
             TokenKind::Type => $this->parseType($token),
-            TokenKind::Variable => new Result([$token->content], TokenKind::Variable)
+            TokenKind::Variable => $this->parseVariable($token), 
+            TokenKind::FunctionName => new Result([$token->content], TokenKind::FunctionName),
         };
     }
 
@@ -67,9 +76,19 @@ class Parser
             if (!isset($var)) {
                 throw new CompilerException('Variable '.$name.' must have type');
             }
+            $this->variables[$name] = self::TypesKind[$type];
             $result[] = $type.' '.$name;
         }
         return new Result([implode(', ', $result)], TokenKind::Variables);
+    }
+
+    public function parseVariable(Token $token): Result
+    {
+        $name = $token->content;
+        if (!isset($this->variables[$name])) {
+            throw new CompilerException('Variable '.$name.' does not exist');
+        }
+        return new Result([$name], $this->variables[$name]);
     }
 
     public function parseFunctionDefinition(Token $token): Result
@@ -81,7 +100,7 @@ class Parser
     {
         return (new (match($token->content) {
             '+','-','/','*' => Operators::class,
-            default => $this->parseUserFunction($token),
+            default => UserFunction::class,
         })($token, $this))->compile();
     }
 
@@ -108,6 +127,14 @@ class Parser
         }
         $this->functions[$name] = $function;
         return $this;
+    }
+
+    public function getFunction(string $function): Token
+    {
+        if (!isset($this->functions[$function])) {
+            throw new CompilerException('Function '.$function.' does not exist');
+        }
+        return $this->functions[$function];
     }
 
     public function addStructure(string $structure): static

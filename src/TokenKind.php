@@ -6,6 +6,7 @@ enum TokenKind
 {
     case FunctionCall;
     case FunctionDefinition;
+    case FunctionName;
     case Variables;
     case Variable;
     case Type;

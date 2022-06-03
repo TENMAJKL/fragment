@@ -1,9 +1,7 @@
-f{parek {rohlik:int rizek:int} int 
-    -- TODO    +{rohlik rizek}
-    +{1 1}
+f{factorial {number:int} int
+    *{number factorial{-{number 1}}}
 }
 
 f{entry {} int
-    -- TODO parek{10 10}
-    +{1 -{2 3}}
+    factorial{10}
 }
