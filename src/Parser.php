@@ -82,6 +82,14 @@ class Parser
         return new Result([implode(', ', $result)], TokenKind::Variables);
     }
 
+    public function removeVariables(Token $token): static
+    {
+        foreach ($token->children() as $child) {
+            unset($this->variables[explode(':', $child->content)[0]]);
+        }
+        return $this;
+    }
+
     public function parseVariable(Token $token): Result
     {
         $name = $token->content;

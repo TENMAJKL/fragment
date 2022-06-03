@@ -18,6 +18,8 @@ class Definition extends AbstractFunction
             TokenKind::FunctionCall,
         ]);
 
+        $this->parser->removeVariables($this->token->children()[1]);
+
         if ($args[0][0] == 'entry') {
             $this->parser->entry();
             $args[0][0] = 'main';
