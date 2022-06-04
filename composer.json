@@ -1,5 +1,5 @@
 {
-    "name": "majkel/funktor",
+    "name": "majkel/fragment",
     "description": "lisp and clean lang",
     "autoload": {
         "psr-4": {
@@ -11,6 +11,5 @@
             "name": "TENMAJKL",
             "email": "tenmajkl@liskyjidlokod.fun"
         }
-    ],
-    "require": {}
+    ]
 }

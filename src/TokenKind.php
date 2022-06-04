@@ -5,9 +5,8 @@ namespace Majkel\Fragment;
 enum TokenKind
 {
     case FunctionCall;
-    case FunctionDefinition;
     case FunctionName;
-    case Variables;
+    case Arguments;
     case Variable;
     case Type;
     case Int;

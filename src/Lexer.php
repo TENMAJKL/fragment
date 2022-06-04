@@ -19,7 +19,6 @@ class Lexer
         $item = -1;
         $in_string = false;
         $in_comment = false;
-        $in_function = false;
         $result = [];
         /** @var \Majkel\Fragment\Token $token */
         $variables = null;
@@ -51,47 +50,20 @@ class Lexer
                     break; 
 
                 case '{':
-                    if (!$this->tokens->empty() && $this->tokens->top()->kind == TokenKind::FunctionDefinition && count($this->tokens->top()->children()) === 1) {
-                        $variables = new Token(TokenKind::Variables, '', [], $this->line);
-                        break;
-                    }
-                    if ($curent == 'f') {
-                        $curent = '';
-                        if ($in_function) {
-                            throw new CompilerException('Function can\'t be defined in other function');
-                        }
-                        $in_function = true;
-                        $this->tokens->push(new Token(TokenKind::FunctionDefinition, '', [], $this->line));
-                        break;
-                    }
                     $this->tokens->push(new Token(TokenKind::FunctionCall, $curent, [], $this->line));
                     $curent = '';
 
                     break;
                 case '}':
-                    if ($variables) {
-                        if ($curent) {
-                            $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line)); 
-                        }
-                        $this->tokens->top()->addChild($variables);
-                        $variables = null;
-                        $curent = '';
-                        break;
-                    }
                     if ($curent) {
                         $kind = $this->getKind($curent);
                         $this->tokens->top()->addChild(new Token($kind, $curent, [], $this->line));
                         $curent = '';
                     }
-
-                    if (!$in_function) {
-                        throw new CompilerException('Unexpected code outside of function at line '.$this->line);
-                    }
                     
                     $last = $this->tokens->pop();
 
                     if ($this->tokens->empty()) {
-                        $in_function = false;
                         $result[] = $last;
                     } else {
                         $this->tokens->top()->addChild($last);
@@ -147,7 +119,7 @@ class Lexer
             return TokenKind::Int;
         }
 
-        if (!$this->tokens->empty() &&$this->tokens->top()->kind == TokenKind::FunctionDefinition && empty($this->tokens->top()->children())) {
+        if (!$this->tokens->empty() &&$this->tokens->top()->content == 'f' && empty($this->tokens->top()->children())) {
             return TokenKind::FunctionName;
         }
 

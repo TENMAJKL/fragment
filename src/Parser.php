@@ -2,6 +2,7 @@
 
 namespace Majkel\Fragment;
 
+use Majkel\Fragment\Functions\Args;
 use Majkel\Fragment\Functions\BooleanOperators;
 use Majkel\Fragment\Functions\Conditions;
 use Majkel\Fragment\Functions\Definition;
@@ -10,8 +11,6 @@ use Majkel\Fragment\Functions\UserFunction;
 
 class Parser
 {
-    private array $libs = [];
-
     private array $functions = [];
 
     private array $structures = [];
@@ -19,6 +18,8 @@ class Parser
     private array $variables = [];
 
     private bool $entry = false;
+
+    public bool $in_function = false;
 
     public const Types = [
         'string' => 'char*', // TODO
@@ -49,12 +50,13 @@ class Parser
 
     public function parseToken(Token $token): Result
     {
+        if (!$this->in_function && $token->kind !== TokenKind::FunctionName && $token->content !== 'f') {
+            throw new CompilerException('Unexpected code outside of function at line '.$token->line);
+        }
         return match ($token->kind) {
             TokenKind::Int => new Result([$token->content], TokenKind::Int),
             TokenKind::String => new Result(['"'.substr($token->content, 1, -1).'"'], TokenKind::String),
             TokenKind::FunctionCall => $this->parseFunctionCall($token),
-            TokenKind::FunctionDefinition => $this->parseFunctionDefinition($token),
-            TokenKind::Variables => $this->parseVariables($token),
             TokenKind::Type => $this->parseType($token),
             TokenKind::Variable => $this->parseVariable($token), 
             TokenKind::FunctionName => new Result([$token->content], TokenKind::FunctionName),
@@ -70,25 +72,17 @@ class Parser
         return new Result([self::Types[$token->content]], TokenKind::Type);
     }
 
-    public function parseVariables(Token $token): Result
-    {
-        $result = [];
-        foreach ($token->children() as $var) {
-            @[$name, $type] = explode(':', $var->content);
-            if (!isset($var)) {
-                throw new CompilerException('Variable '.$name.' must have type');
-            }
-            $this->variables[$name] = self::TypesKind[$type];
-            $result[] = $type.' '.$name;
-        }
-        return new Result([implode(', ', $result)], TokenKind::Variables);
-    }
-
     public function removeVariables(Token $token): static
     {
         foreach ($token->children() as $child) {
             unset($this->variables[explode(':', $child->content)[0]]);
         }
+        return $this;
+    }
+
+    public function addVariable(string $name, TokenKind $type): static
+    {
+        $this->variables[$name] = $type;
         return $this;
     }
 
@@ -101,14 +95,11 @@ class Parser
         return new Result([$name], $this->variables[$name]);
     }
 
-    public function parseFunctionDefinition(Token $token): Result
-    {
-        return (new Definition($token, $this))->compile();  
-    }
-
     public function parseFunctionCall(Token $token): Result
     {
         return (new (match($token->content) {
+            'f' => Definition::class,
+            'args' => Args::class,
             '+', '-', '/', '*' => Operators::class,
             '==', '>', '<', '>=', '<=' => BooleanOperators::class,
             'if' => Conditions::class,
@@ -123,12 +114,6 @@ class Parser
         }
 
         return new Result([$token->content.'('.$this->parse($token->children()).')'], $this->functions[$token->content]->children()[2]);
-    }
-
-    public function addLib(string $lib): static
-    {
-        $this->libs[] = $lib;
-        return $this;
     }
 
     public function addFunction(Token $function): static

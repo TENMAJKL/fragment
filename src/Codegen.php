@@ -19,11 +19,11 @@ class Codegen
         $result = '';
         foreach ($this->template as $item) {
             foreach ($item->content as $line) {
-                if ($line == '}') {
+                if (str_starts_with($line, '}')) {
                     $indent = substr($indent, 1, -4);
                 }
                 $result .= $indent.$line;   
-                if ($line == '{') {
+                if (str_ends_with($line, '{')) {
                     $indent .= '    ';
                 }
                 $result .= "\n";
