@@ -16,7 +16,7 @@ class Codegen
     public function generate(): string
     {
         $indent = '';
-        $result = '';
+        $result = ''; 
         foreach ($this->template as $item) {
             foreach ($item->content as $line) {
                 if (str_starts_with($line, '}')) {

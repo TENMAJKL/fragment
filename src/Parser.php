@@ -7,13 +7,16 @@ use Majkel\Fragment\Functions\BooleanOperators;
 use Majkel\Fragment\Functions\Conditions;
 use Majkel\Fragment\Functions\Definition;
 use Majkel\Fragment\Functions\Operators;
+use Majkel\Fragment\Functions\Output;
 use Majkel\Fragment\Functions\UserFunction;
 
 class Parser
 {
     private array $functions = [];
 
-    private array $structures = [];
+    private array $structures = [
+        'World' => []
+    ];
 
     private array $variables = [];
 
@@ -80,15 +83,29 @@ class Parser
         return $this;
     }
 
-    public function addVariable(string $name, TokenKind $type): static
+    public function addVariable(string $name, string $type): static
     {
-        $this->variables[$name] = $type;
+        $this->variables[$name] = $this->getType($type);
         return $this;
+    }
+
+    public function getType(string $type): TokenKind|string
+    {
+        if (isset(Parser::TypesKind[$type])) {
+            return Parser::TypesKind[$type];
+        } elseif (isset($this->structures[$type])) {
+            return $type;
+        } else {
+            throw new CompilerException('Unknown type: '.$type);
+        }  
     }
 
     public function parseVariable(Token $token): Result
     {
         $name = $token->content;
+        if (isset($this->structures[$name])) {
+            return new Result([$name], TokenKind::Type);
+        }
         if (!isset($this->variables[$name])) {
             throw new CompilerException('Variable '.$name.' does not exist');
         }
@@ -103,6 +120,7 @@ class Parser
             '+', '-', '/', '*' => Operators::class,
             '==', '>', '<', '>=', '<=' => BooleanOperators::class,
             'if' => Conditions::class,
+            'echo' => Output::class,
             default => UserFunction::class,
         })($token, $this))->compile();
     }
@@ -134,9 +152,9 @@ class Parser
         return $this->functions[$function];
     }
 
-    public function addStructure(string $structure): static
+    public function addStructure(string $name, array $struct): static
     {
-        $this->structures[] = $structure;
+        $this->structures[$name] = $struct;
         return $this;
     }
 
@@ -144,5 +162,10 @@ class Parser
     { 
         $this->entry = true;
         return $this;
+    }
+
+    public function structures(): array
+    {
+        return $this->structures;
     }
 }

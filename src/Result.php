@@ -6,7 +6,7 @@ class Result
 {
     public function __construct(
         public readonly array $content,
-        public readonly TokenKind $type,
+        public readonly TokenKind|string $type,
     ) {
         
     }

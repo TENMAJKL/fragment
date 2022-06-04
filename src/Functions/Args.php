@@ -3,7 +3,6 @@
 namespace Majkel\Fragment\Functions;
 
 use Majkel\Fragment\CompilerException;
-use Majkel\Fragment\Parser;
 use Majkel\Fragment\Result;
 use Majkel\Fragment\TokenKind;
 
@@ -22,11 +21,8 @@ class Args extends AbstractFunction
             @[$name, $type] = explode(':', $child->content);
             if (!isset($type)) {
                 throw new CompilerException('Variable '.$name.' must have type');
-            }
-            if (!isset(Parser::TypesKind[$type])) {
-                throw new CompilerException('Unknown type: '.$type);
-            }
-            $this->parser->addVariable($name, Parser::TypesKind[$type]);
+            } 
+            $this->parser->addVariable($name, $type);
             $args[] = $name;
         }        
 

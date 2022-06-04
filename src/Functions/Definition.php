@@ -29,7 +29,7 @@ class Definition extends AbstractFunction
 
         $this->parser->removeVariables($this->token->children()[1]);
 
-        if ($args[3][1] !== Parser::TypesKind[$this->token->children()[2]->content]) {
+        if ($args[3][1] !== $this->parser->getType($this->token->children()[2]->content)) {
             throw new CompilerException('Function '.$args[0][0][0].' must return '.$this->token->children()[2]->content);
         }
 
@@ -42,9 +42,15 @@ class Definition extends AbstractFunction
         if ($args[0][0][0] == 'entry') {
             $this->parser->entry();
             $fn = [
-                "(function({$args[1][0][0]}) {",
+                'function end(world) {',
+                'world.out.forEach((item) => console.log(item))',
+                '}',
+                'var _world = {',
+                '"out": []',
+                '}',
+                "end((function({$args[1][0][0]}) {",
                 "return {$args[3][0][0]}",
-                '})()'
+                '})(_world))',
             ];
         }
 
