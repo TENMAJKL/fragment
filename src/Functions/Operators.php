@@ -15,7 +15,7 @@ class Operators extends AbstractFunction
         ]);
 
         return new Result([
-            $arguments[0][0].$this->token->content.$arguments[1][0]
+            $arguments[0][0][0].' '.$this->token->content.' '.$arguments[1][0][0]
         ], TokenKind::Int);
     }
 }

@@ -1,5 +1,8 @@
 f{factorial {number:int} int
-    *{number factorial{-{number 1}}}
+    if{=={number 1}
+        number
+        *{number factorial{-{number 1}}}
+    }
 }
 
 f{entry {} int

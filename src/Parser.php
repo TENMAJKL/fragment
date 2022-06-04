@@ -2,6 +2,8 @@
 
 namespace Majkel\Funktor;
 
+use Majkel\Funktor\Functions\BooleanOperators;
+use Majkel\Funktor\Functions\Conditions;
 use Majkel\Funktor\Functions\Definition;
 use Majkel\Funktor\Functions\Operators;
 use Majkel\Funktor\Functions\UserFunction;
@@ -107,7 +109,9 @@ class Parser
     public function parseFunctionCall(Token $token): Result
     {
         return (new (match($token->content) {
-            '+','-','/','*' => Operators::class,
+            '+', '-', '/', '*' => Operators::class,
+            '==', '>', '<', '>=', '<=' => BooleanOperators::class,
+            'if' => Conditions::class,
             default => UserFunction::class,
         })($token, $this))->compile();
     }
