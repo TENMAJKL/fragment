@@ -1,6 +1,6 @@
 <?php
 
-namespace Majkel\Funktor;
+namespace Majkel\Fragment;
 
 class Lexer
 {
@@ -21,7 +21,7 @@ class Lexer
         $in_comment = false;
         $in_function = false;
         $result = [];
-        /** @var \Majkel\Funktor\Token $token */
+        /** @var \Majkel\Fragment\Token $token */
         $variables = null;
         $curent = '';
         while ($item < strlen($this->code) - 1) {
@@ -58,7 +58,7 @@ class Lexer
                     if ($curent == 'f') {
                         $curent = '';
                         if ($in_function) {
-                            throw new CompilerException('Function can\'t be defined in other function, in order to create lambda function use `lambda{`');
+                            throw new CompilerException('Function can\'t be defined in other function');
                         }
                         $in_function = true;
                         $this->tokens->push(new Token(TokenKind::FunctionDefinition, '', [], $this->line));

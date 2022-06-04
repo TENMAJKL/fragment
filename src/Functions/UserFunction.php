@@ -1,10 +1,10 @@
 <?php
 
-namespace Majkel\Funktor\Functions;
+namespace Majkel\Fragment\Functions;
 
-use Majkel\Funktor\Parser;
-use Majkel\Funktor\Result;
-use Majkel\Funktor\Token;
+use Majkel\Fragment\Parser;
+use Majkel\Fragment\Result;
+use Majkel\Fragment\Token;
 
 class UserFunction extends AbstractFunction
 {

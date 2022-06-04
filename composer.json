@@ -3,7 +3,7 @@
     "description": "lisp and clean lang",
     "autoload": {
         "psr-4": {
-            "Majkel\\Funktor\\": "src/"
+            "Majkel\\Fragment\\": "src/"
         }
     },
     "authors": [

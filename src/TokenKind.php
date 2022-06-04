@@ -1,6 +1,6 @@
 <?php
 
-namespace Majkel\Funktor;
+namespace Majkel\Fragment;
 
 enum TokenKind
 {

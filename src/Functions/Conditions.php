@@ -1,10 +1,10 @@
 <?php
 
-namespace Majkel\Funktor\Functions;
+namespace Majkel\Fragment\Functions;
 
-use Majkel\Funktor\CompilerException;
-use Majkel\Funktor\Result;
-use Majkel\Funktor\TokenKind;
+use Majkel\Fragment\CompilerException;
+use Majkel\Fragment\Result;
+use Majkel\Fragment\TokenKind;
 
 class Conditions extends AbstractFunction
 {

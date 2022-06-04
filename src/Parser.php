@@ -1,12 +1,12 @@
 <?php
 
-namespace Majkel\Funktor;
+namespace Majkel\Fragment;
 
-use Majkel\Funktor\Functions\BooleanOperators;
-use Majkel\Funktor\Functions\Conditions;
-use Majkel\Funktor\Functions\Definition;
-use Majkel\Funktor\Functions\Operators;
-use Majkel\Funktor\Functions\UserFunction;
+use Majkel\Fragment\Functions\BooleanOperators;
+use Majkel\Fragment\Functions\Conditions;
+use Majkel\Fragment\Functions\Definition;
+use Majkel\Fragment\Functions\Operators;
+use Majkel\Fragment\Functions\UserFunction;
 
 class Parser
 {

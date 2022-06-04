@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-use Majkel\Funktor\Codegen;
-use Majkel\Funktor\Lexer;
-use Majkel\Funktor\Parser;
+use Majkel\Fragment\Codegen;
+use Majkel\Fragment\Lexer;
+use Majkel\Fragment\Parser;
 
 include __DIR__.'/vendor/autoload.php';
 
