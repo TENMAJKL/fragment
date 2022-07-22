@@ -3,8 +3,9 @@ f{isLeap args{year:int} bool
 }
 
 f{entry args{w:World} World
-    echo{
-        echo{w isLeap{2015}}
-        isLeap{2016}
+    o-o{
+        w
+        echo{isLeap{2015}}
+        echo{isLeap{2016}}
     }
 }

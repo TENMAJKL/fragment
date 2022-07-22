@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Majkel\Fragment;
 
 use Majkel\Fragment\Functions\Args;
 use Majkel\Fragment\Functions\BooleanOperators;
+use Majkel\Fragment\Functions\Chain;
 use Majkel\Fragment\Functions\Conditions;
 use Majkel\Fragment\Functions\Definition;
 use Majkel\Fragment\Functions\Operators;
@@ -149,6 +152,7 @@ class Parser
             '==', '>', '<', '>=', '<=' => BooleanOperators::class,
             'if' => Conditions::class,
             'echo' => Output::class,
+            'o-o' => Chain::class,
             default => UserFunction::class,
         })($token, $this))->compile();
     }

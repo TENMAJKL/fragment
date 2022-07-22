@@ -1,7 +1,7 @@
 f{neco args{world:World} World
-    echo{world 'foo'}
+    echo{'foo' world}
 }
 
 f{entry args{w:World} World
-    echo{neco{w} ' bar'}
+    echo{' bar' neco{w}}
 }
