@@ -1,5 +1,7 @@
 # Fragment
 
+![](fragment.png)
+
 Fragment is basicaly combination of lisp and clean maybe which compiles to js. Its written in php because its first bootstrap before it will be rewritten in it self (if ever).
 
 ## Doc
