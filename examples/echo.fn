@@ -1,7 +1,7 @@
-f{neco args{world:World} World
-    echo{'foo' world}
-}
-
-f{entry args{w:World} World
-    echo{' bar' neco{w}}
+f{entry args{world:World} World
+    o-o{
+        world
+        echo{'foo'}
+        echo{'bar'}
+    }
 }

@@ -5,14 +5,14 @@ namespace Majkel\Fragment\Functions;
 use Majkel\Fragment\Result;
 use Majkel\Fragment\TokenKind;
 
-class Head extends AbstractFunction
+class Stick extends AbstractFunction
 {
     public function compile(): Result
     {
         $parsed = $this->arguments([
-            'Pair',
+            TokenKind::String,
+            TokenKind::String,
         ]);
-
-        return new Result([$parsed[0][0][0].'["head"]'], TokenKind::Int);
+        return new Result([$parsed[0][0][0].' + '.$parsed[0][0][0]], TokenKind::String);
     }
 }

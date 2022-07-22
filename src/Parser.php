@@ -14,6 +14,8 @@ use Majkel\Fragment\Functions\IsNull;
 use Majkel\Fragment\Functions\Operators;
 use Majkel\Fragment\Functions\Output;
 use Majkel\Fragment\Functions\Pair;
+use Majkel\Fragment\Functions\Range;
+use Majkel\Fragment\Functions\Stick;
 use Majkel\Fragment\Functions\Tail;
 use Majkel\Fragment\Functions\UserFunction;
 
@@ -31,6 +33,10 @@ class Parser
     private array $structures = [
         'World' => [
             'out' => TokenKind::Array,
+        ],
+        'Pair' => [
+            'head' => TokenKind::Any,
+            'tail' => 'Pair',
         ],
     ];
 
@@ -153,6 +159,8 @@ class Parser
             'head' => Head::class,
             'tail' => Tail::class,
             '?' => IsNull::class,
+            '..' => Range::class,
+            '~' => Stick::class,
             default => UserFunction::class,
         })($token, $this))->compile();
     }

@@ -27,7 +27,7 @@ class UserFunction extends AbstractFunction
             $this->getParameters($function)
         );
 
-        $args = array_reduce(array_slice($args, 1), fn ($carry, $item) => $carry.', '.$item[0][0][0], $args[0][0][0]);
+        $args = array_reduce(array_slice($args, 1), fn ($carry, $item) => $carry.', '.$item[0][0], $args[0][0][0]);
 
         return new Result([
             "{$this->token->content}({$args})",

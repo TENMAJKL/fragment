@@ -16,17 +16,13 @@ class Pair extends AbstractFunction
         protected Token $token,
         protected Parser $parser
     ) {
-        $this->parser->addStructure('Pair', [
-            'head' => TokenKind::Any,
-            'tail' => 'Pair' 
-        ]);
     }
 
     public function compile(): Result
     {
         $parsed = $this->arguments([
+            TokenKind::Int,
             TokenKind::Any,
-            TokenKind::Any
         ]);
 
         if (!in_array($parsed[1][1], ['Pair', TokenKind::Null])) {
