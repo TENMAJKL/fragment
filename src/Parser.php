@@ -10,6 +10,7 @@ use Majkel\Fragment\Functions\Chain;
 use Majkel\Fragment\Functions\Conditions;
 use Majkel\Fragment\Functions\Definition;
 use Majkel\Fragment\Functions\Head;
+use Majkel\Fragment\Functions\IsNull;
 use Majkel\Fragment\Functions\Operators;
 use Majkel\Fragment\Functions\Output;
 use Majkel\Fragment\Functions\Pair;
@@ -151,6 +152,7 @@ class Parser
             'pair' => Pair::class,
             'head' => Head::class,
             'tail' => Tail::class,
+            '?' => IsNull::class,
             default => UserFunction::class,
         })($token, $this))->compile();
     }
@@ -199,7 +201,7 @@ class Parser
     public function newStructure(string $name): string
     {
         $struct = $this->getStructure($name);
-        return json_encode(array_combine(array_keys($struct), array_map(fn($item) => $item === TokenKind::Array ? '[]' : 'null', $struct)));
+        return json_encode(array_combine(array_keys($struct), array_map(fn($item) => $item === TokenKind::Array ? [] : 'null', $struct)));
     }
 
     public function entry(): static

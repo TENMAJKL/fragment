@@ -1,3 +1,3 @@
 f{entry args{w:World} World
-    echo{pair{10 pair{20 null}} w}
+    echo{if{?{head{tail{pair{10 pair{20 null}}}}} 'konec filmu' 'dobre ne'} w}
 }
