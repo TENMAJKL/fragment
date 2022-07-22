@@ -14,8 +14,10 @@ class Output extends AbstractFunction
             TokenKind::Any,
         ]);
 
+        $this->parser->addInternalFunction('echo', ['world', 'target'], ['world.out.push(target)', 'return world']);
+
         return new Result([
-            "(function(world){world.out.push({$args[1][0][0]}); return world;})({$args[0][0][0]})",
+            "__echo({$args[0][0][0]}, {$args[1][0][0]})",
         ], 'World');
-    } 
+    }
 }

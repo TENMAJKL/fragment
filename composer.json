@@ -11,5 +11,8 @@
             "name": "TENMAJKL",
             "email": "tenmajkl@liskyjidlokod.fun"
         }
-    ]
+    ],
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.9"
+    }
 }

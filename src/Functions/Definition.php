@@ -3,7 +3,6 @@
 namespace Majkel\Fragment\Functions;
 
 use Majkel\Fragment\CompilerException;
-use Majkel\Fragment\Parser;
 use Majkel\Fragment\Result;
 use Majkel\Fragment\TokenKind;
 
@@ -39,21 +38,15 @@ class Definition extends AbstractFunction
             '}',
         ];
 
-        if ($args[0][0][0] == 'entry') {
+        if ('entry' == $args[0][0][0]) {
             $this->parser->entry();
             $fn = [
-                'function end(world) {',
-                'world.out.forEach((item) => console.log(item))',
-                '}',
-                'var _world = {',
-                '"out": []',
-                '}',
-                "end((function({$args[1][0][0]}) {",
+                "__end((function({$args[1][0][0]}) {",
                 "return {$args[3][0][0]}",
-                '})(_world))',
+                '})(__World))',
             ];
         }
 
-        return new Result($fn, TokenKind::Void); 
+        return new Result($fn, TokenKind::Void);
     }
 }

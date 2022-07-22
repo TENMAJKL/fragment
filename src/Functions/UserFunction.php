@@ -2,7 +2,6 @@
 
 namespace Majkel\Fragment\Functions;
 
-use Majkel\Fragment\Parser;
 use Majkel\Fragment\Result;
 use Majkel\Fragment\Token;
 
@@ -13,8 +12,9 @@ class UserFunction extends AbstractFunction
         $params = [];
 
         foreach ($function->children()[1]->children() as $param) {
-            $params[] = Parser::TypesKind[explode(':', $param->content)[1]];
+            $params[] = $this->parser->getType(explode(':', $param->content)[1]);
         }
+
         return $params;
     }
 
@@ -25,9 +25,10 @@ class UserFunction extends AbstractFunction
             $this->getParameters($function)
         );
 
-        $args = array_reduce(array_slice($args, 1), fn($carry, $item) => $carry.', '.$item[0][0][0], $args[0][0][0]);
+        $args = array_reduce(array_slice($args, 1), fn ($carry, $item) => $carry.', '.$item[0][0][0], $args[0][0][0]);
+
         return new Result([
-            "{$this->token->content}({$args})"
-        ], Parser::TypesKind[$function->children()[2]->content]);
+            "{$this->token->content}({$args})",
+        ], $this->parser->getType($function->children()[2]->content));
     }
 }

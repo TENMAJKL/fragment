@@ -9,5 +9,5 @@ include __DIR__.'/vendor/autoload.php';
 
 $l = new Lexer(file_get_contents($argv[1]));
 $p = new Parser($l->lex());
-$g = new Codegen($p->parse());
+$g = new Codegen($p->parse(), ...$p->getInternals());
 echo $g->generate();

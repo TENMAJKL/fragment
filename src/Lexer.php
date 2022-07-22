@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Majkel\Fragment;
 
 class Lexer
@@ -11,7 +13,7 @@ class Lexer
     public function __construct(
         private string $code
     ) {
-        $this->tokens = new Stack(); 
+        $this->tokens = new Stack();
     }
 
     public function lex(): array
@@ -20,47 +22,50 @@ class Lexer
         $in_string = false;
         $in_comment = false;
         $result = [];
+
         /** @var \Majkel\Fragment\Token $token */
         $variables = null;
         $curent = '';
         while ($item < strlen($this->code) - 1) {
-            $item++;
+            ++$item;
             $char = $this->code[$item];
-            if ($char == PHP_EOL) {
+            if (PHP_EOL == $char) {
                 if ($in_comment) {
                     $in_comment = false;
                 }
-                $this->line++;
+                ++$this->line;
             }
 
             if ($in_string) {
                 $curent .= $char;
-                if ($char == '\'') {
+                if ('\'' == $char) {
                     $in_string = false;
                 }
+
                 continue;
             }
 
             if ($in_comment) {
                 continue;
             }
+
             switch ($char) {
                 case PHP_EOL:
-                    
-                    break; 
+                    break;
 
                 case '{':
                     $this->tokens->push(new Token(TokenKind::FunctionCall, $curent, [], $this->line));
                     $curent = '';
 
                     break;
+
                 case '}':
-                    if ($curent) {
+                    if (strlen($curent) > 0) {
                         $kind = $this->getKind($curent);
                         $this->tokens->top()->addChild(new Token($kind, $curent, [], $this->line));
                         $curent = '';
                     }
-                    
+
                     $last = $this->tokens->pop();
 
                     if ($this->tokens->empty()) {
@@ -77,25 +82,27 @@ class Lexer
 
                     break;
 
-                case ' ': 
-                    if (!$curent) {
+                case ' ':
+                    if (0 === strlen($curent)) {
                         break;
                     }
                     if ($variables) {
-                        $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line)); 
+                        $variables->addChild(new Token(TokenKind::Variable, $curent, [], $this->line));
                         $curent = '';
+
                         break;
                     }
 
                     $kind = $this->getKind($curent);
                     $this->tokens->top()->addChild(new Token($kind, $curent, [], $this->line));
                     $curent = '';
+
                     break;
 
                 default:
                     $curent .= $char;
 
-                    if ($curent == '--') {
+                    if ('--' == $curent) {
                         $in_comment = true;
                         $curent = '';
                     }
@@ -115,18 +122,18 @@ class Lexer
             return TokenKind::String;
         }
 
-        if (count(array_filter(str_split($target), fn($item) => is_numeric($item))) == strlen($target)) {
+        if (count(array_filter(str_split($target), fn ($item) => is_numeric($item))) == strlen($target)) {
             return TokenKind::Int;
         }
 
-        if (!$this->tokens->empty() &&$this->tokens->top()->content == 'f' && empty($this->tokens->top()->children())) {
+        if (!$this->tokens->empty() && 'f' == $this->tokens->top()->content && empty($this->tokens->top()->children())) {
             return TokenKind::FunctionName;
         }
 
-        if (in_array($target, ['int', 'string', 'void'])) {
+        if (in_array($target, ['int', 'string', 'void', 'bool'])) {
             return TokenKind::Type;
         }
-    
+
         return TokenKind::Variable;
     }
 }

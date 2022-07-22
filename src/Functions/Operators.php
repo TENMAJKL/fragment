@@ -11,11 +11,11 @@ class Operators extends AbstractFunction
     {
         $arguments = $this->arguments([
             TokenKind::Int,
-            TokenKind::Int
+            TokenKind::Int,
         ]);
 
         return new Result([
-            $arguments[0][0][0].' '.$this->token->content.' '.$arguments[1][0][0]
+            $arguments[0][0][0].' '.$this->token->content.' '.$arguments[1][0][0],
         ], TokenKind::Int);
     }
 }

@@ -9,6 +9,7 @@ class Stack
     public function push(Token $token): static
     {
         $this->data[] = $token;
+
         return $this;
     }
 
@@ -24,6 +25,6 @@ class Stack
 
     public function empty(): bool
     {
-        return count($this->data) === 0;
-    } 
+        return 0 === count($this->data);
+    }
 }

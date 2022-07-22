@@ -6,5 +6,5 @@ f{factorial args{number:int} int
 }
 
 f{entry args{world:World} World
-    echo{world factorial{5}}
+    echo{echo{world 'faktorial je '} factorial{5}}
 }

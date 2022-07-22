@@ -10,12 +10,12 @@ class Token
         private array $children,
         public readonly int $line,
     ) {
-        
     }
 
     public function addChild(Token $token): static
     {
         $this->children[] = $token;
+
         return $this;
     }
 

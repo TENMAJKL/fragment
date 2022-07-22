@@ -14,8 +14,9 @@ abstract class AbstractFunction
         protected Token $token,
         protected Parser $parser
     ) {
-        
     }
+
+    abstract public function compile(): Result;
 
     protected function arguments(array $signature): array
     {
@@ -25,8 +26,8 @@ abstract class AbstractFunction
         }
         foreach ($signature as $index => $type) {
             $token = $this->token->children()[$index];
-            $parsed = $this->parser->parseToken($token); 
-            if ($type !== TokenKind::FunctionCall && $type !== TokenKind::Any) {
+            $parsed = $this->parser->parseToken($token);
+            if (TokenKind::FunctionCall !== $type && TokenKind::Any !== $type) {
                 if ($parsed->type !== $type) {
                     throw new CompilerException('Argument '.($index + 1).' of function '.$this->token->content.' must be TODO at line '.$token->line);
                 }
@@ -37,6 +38,4 @@ abstract class AbstractFunction
 
         return $result;
     }
-
-    abstract public function compile(): Result;
 }

@@ -8,7 +8,6 @@ class Result
         public readonly array $content,
         public readonly TokenKind|string $type,
     ) {
-        
     }
 
     public function __toString()

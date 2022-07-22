@@ -15,16 +15,16 @@ class Args extends AbstractFunction
         }
         $args = [];
         foreach ($this->token->children() as $child) {
-            if ($child->kind !== TokenKind::Variable) {
+            if (TokenKind::Variable !== $child->kind) {
                 throw new CompilerException('Functoon args takes only variables as arguments');
             }
             @[$name, $type] = explode(':', $child->content);
             if (!isset($type)) {
                 throw new CompilerException('Variable '.$name.' must have type');
-            } 
+            }
             $this->parser->addVariable($name, $type);
             $args[] = $name;
-        }        
+        }
 
         return new Result([
             implode(', ', $args),

@@ -13,7 +13,7 @@ class Conditions extends AbstractFunction
         $args = $this->arguments([
             TokenKind::Bool,
             TokenKind::Any,
-            TokenKind::Any
+            TokenKind::Any,
         ]);
 
         if ($args[1][1] !== $args[2][1]) {
@@ -21,7 +21,7 @@ class Conditions extends AbstractFunction
         }
 
         return new Result([
-            "({$args[0][0][0]}) ? ({$args[1][0][0]}) : ({$args[2][0][0]})"
+            "({$args[0][0][0]}) ? ({$args[1][0][0]}) : ({$args[2][0][0]})",
         ], $args[1][1]);
     }
 }

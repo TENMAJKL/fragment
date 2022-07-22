@@ -12,32 +12,38 @@ use Majkel\Fragment\Functions\UserFunction;
 
 class Parser
 {
+    public const TypesKind = [
+        'string' => TokenKind::String,
+        'int' => TokenKind::Int,
+        'bool' => TokenKind::Bool,
+    ];
+
+    public bool $in_function = false;
     private array $functions = [];
 
     private array $structures = [
-        'World' => []
+        'World' => [],
+    ];
+
+    private array $internal_functions = [
+        'end' => [['world'],
+            ['world.out.forEach((item) => console.log(item))'],
+        ],
+    ];
+
+    private array $internal_structures = [
+        'World' => [
+            'out' => [],
+        ],
     ];
 
     private array $variables = [];
 
     private bool $entry = false;
 
-    public bool $in_function = false;
-
-    public const Types = [
-        'string' => 'char*', // TODO
-        'int' => 'int',
-    ];
-
-    public const TypesKind = [
-        'string' => TokenKind::String,
-        'int' => TokenKind::Int
-    ];
-
     public function __construct(
         private array $tokens
     ) {
-        
     }
 
     public function parse(): array
@@ -51,28 +57,46 @@ class Parser
         return $result;
     }
 
+    public function getInternals(): array
+    {
+        return [
+            $this->internal_functions,
+            $this->internal_structures,
+        ];
+    }
+
+    public function addInternalFunction(string $name, array $args, array $lines): self
+    {
+        if (!isset($this->internal_functions[$name])) {
+            $this->internal_functions[$name] = [$args, $lines];
+        }
+
+        return $this;
+    }
+
     public function parseToken(Token $token): Result
     {
-        if (!$this->in_function && $token->kind !== TokenKind::FunctionName && $token->content !== 'f') {
+        if (!$this->in_function && TokenKind::FunctionName !== $token->kind && 'f' !== $token->content) {
             throw new CompilerException('Unexpected code outside of function at line '.$token->line);
         }
+
         return match ($token->kind) {
             TokenKind::Int => new Result([$token->content], TokenKind::Int),
             TokenKind::String => new Result(['"'.substr($token->content, 1, -1).'"'], TokenKind::String),
             TokenKind::FunctionCall => $this->parseFunctionCall($token),
             TokenKind::Type => $this->parseType($token),
-            TokenKind::Variable => $this->parseVariable($token), 
+            TokenKind::Variable => $this->parseVariable($token),
             TokenKind::FunctionName => new Result([$token->content], TokenKind::FunctionName),
         };
     }
 
     public function parseType(Token $token): Result
     {
-        if (!isset(self::Types[$token->content])) {
+        if (!isset(self::TypesKind[$token->content])) {
             throw new CompilerException('Type '.$token->content.' does not exist');
         }
 
-        return new Result([self::Types[$token->content]], TokenKind::Type);
+        return new Result([$token->content], TokenKind::Type);
     }
 
     public function removeVariables(Token $token): static
@@ -80,12 +104,14 @@ class Parser
         foreach ($token->children() as $child) {
             unset($this->variables[explode(':', $child->content)[0]]);
         }
+
         return $this;
     }
 
     public function addVariable(string $name, string $type): static
     {
         $this->variables[$name] = $this->getType($type);
+
         return $this;
     }
 
@@ -93,11 +119,12 @@ class Parser
     {
         if (isset(Parser::TypesKind[$type])) {
             return Parser::TypesKind[$type];
-        } elseif (isset($this->structures[$type])) {
+        }
+        if (isset($this->structures[$type])) {
             return $type;
-        } else {
-            throw new CompilerException('Unknown type: '.$type);
-        }  
+        }
+
+        throw new CompilerException('Unknown type: '.$type);
     }
 
     public function parseVariable(Token $token): Result
@@ -109,15 +136,16 @@ class Parser
         if (!isset($this->variables[$name])) {
             throw new CompilerException('Variable '.$name.' does not exist');
         }
+
         return new Result([$name], $this->variables[$name]);
     }
 
     public function parseFunctionCall(Token $token): Result
     {
-        return (new (match($token->content) {
+        return (new (match ($token->content) {
             'f' => Definition::class,
             'args' => Args::class,
-            '+', '-', '/', '*' => Operators::class,
+            '+', '-', '/', '*', '%' => Operators::class,
             '==', '>', '<', '>=', '<=' => BooleanOperators::class,
             'if' => Conditions::class,
             'echo' => Output::class,
@@ -141,6 +169,7 @@ class Parser
             throw new CompilerException('Function '.$name.' has already been defined');
         }
         $this->functions[$name] = $function;
+
         return $this;
     }
 
@@ -149,18 +178,21 @@ class Parser
         if (!isset($this->functions[$function])) {
             throw new CompilerException('Function '.$function.' does not exist');
         }
+
         return $this->functions[$function];
     }
 
     public function addStructure(string $name, array $struct): static
     {
         $this->structures[$name] = $struct;
+
         return $this;
     }
 
     public function entry(): static
-    { 
+    {
         $this->entry = true;
+
         return $this;
     }
 
