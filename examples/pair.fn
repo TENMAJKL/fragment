@@ -1,0 +1,3 @@
+f{entry args{w:World} World
+    echo{pair{10 pair{20 null}} w}
+}

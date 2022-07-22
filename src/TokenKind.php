@@ -26,9 +26,9 @@ enum TokenKind
 
     case Bool;
 
-    case Pair;
-
     case Entry;
 
     case Any;
+
+    case Null;
 }

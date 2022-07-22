@@ -9,8 +9,11 @@ use Majkel\Fragment\Functions\BooleanOperators;
 use Majkel\Fragment\Functions\Chain;
 use Majkel\Fragment\Functions\Conditions;
 use Majkel\Fragment\Functions\Definition;
+use Majkel\Fragment\Functions\Head;
 use Majkel\Fragment\Functions\Operators;
 use Majkel\Fragment\Functions\Output;
+use Majkel\Fragment\Functions\Pair;
+use Majkel\Fragment\Functions\Tail;
 use Majkel\Fragment\Functions\UserFunction;
 
 class Parser
@@ -25,18 +28,14 @@ class Parser
     private array $functions = [];
 
     private array $structures = [
-        'World' => [],
+        'World' => [
+            'out' => TokenKind::Array,
+        ],
     ];
 
     private array $internal_functions = [
         'end' => [['world'],
             ['world.out.forEach((item) => console.log(item))'],
-        ],
-    ];
-
-    private array $internal_structures = [
-        'World' => [
-            'out' => [],
         ],
     ];
 
@@ -60,19 +59,14 @@ class Parser
         return $result;
     }
 
-    public function getInternals(): array
+    public function getInternalFunctions(): array
     {
-        return [
-            $this->internal_functions,
-            $this->internal_structures,
-        ];
+        return $this->internal_functions;
     }
 
     public function addInternalFunction(string $name, array $args, array $lines): self
     {
-        if (!isset($this->internal_functions[$name])) {
-            $this->internal_functions[$name] = [$args, $lines];
-        }
+        $this->internal_functions[$name] = [$args, $lines];
 
         return $this;
     }
@@ -90,6 +84,7 @@ class Parser
             TokenKind::Type => $this->parseType($token),
             TokenKind::Variable => $this->parseVariable($token),
             TokenKind::FunctionName => new Result([$token->content], TokenKind::FunctionName),
+            TokenKind::Null => new Result(['null'], TokenKind::Null),
         };
     }
 
@@ -153,6 +148,9 @@ class Parser
             'if' => Conditions::class,
             'echo' => Output::class,
             'o-o' => Chain::class,
+            'pair' => Pair::class,
+            'head' => Head::class,
+            'tail' => Tail::class,
             default => UserFunction::class,
         })($token, $this))->compile();
     }
@@ -191,6 +189,17 @@ class Parser
         $this->structures[$name] = $struct;
 
         return $this;
+    }
+
+    public function getStructure(string $name): array
+    {
+        return $this->structures[$name];
+    }
+
+    public function newStructure(string $name): string
+    {
+        $struct = $this->getStructure($name);
+        return json_encode(array_combine(array_keys($struct), array_map(fn($item) => $item === TokenKind::Array ? '[]' : 'null', $struct)));
     }
 
     public function entry(): static

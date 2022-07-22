@@ -134,6 +134,10 @@ class Lexer
             return TokenKind::Type;
         }
 
+        if ($target === 'null') {
+            return TokenKind::Null; 
+        }
+
         return TokenKind::Variable;
     }
 }

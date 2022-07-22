@@ -45,7 +45,7 @@ class Definition extends AbstractFunction
             $fn = [
                 "__end((function({$args[1][0][0]}) {",
                 "return {$args[3][0][0]}",
-                '})(__World))',
+                '})('.$this->parser->newStructure('World').'))',
             ];
         }
 
